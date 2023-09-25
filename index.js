@@ -8,7 +8,7 @@ import simpleGit from "simple-git"
 
 const git = simpleGit()
 
-const getCommitsFromBranch = async (branch) => {
+export const getCommitsFromBranch = async (branch) => {
   const currentBranch = (await git.revparse(["--abbrev-ref", "HEAD"])).trim()
 
   const logOutput = await git.raw([
