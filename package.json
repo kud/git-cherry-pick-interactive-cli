@@ -1,24 +1,32 @@
 {
   "name": "@kud/git-cherry-pick-interactive-cli",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "bin": {
-    "git-cherry-pick-interactive": "./index.js"
-  },
+  "description": "Interactively cherry-pick commits from another branch.",
   "type": "module",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "bin": {
+    "git-cherry-pick-interactive": "dist/index.js"
   },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "git",
+    "cherry-pick",
+    "cli",
+    "interactive"
+  ],
   "author": "Erwann Mest <m@kud.io>",
   "license": "MIT",
-  "dependencies": {
-    "chalk": "5.3.0",
-    "inquirer": "9.2.11",
-    "simple-git": "3.20.0",
-    "yargs": "17.7.2",
-    "zx": "7.2.3"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/kud/git-cherry-pick-interactive-cli.git"
@@ -26,5 +34,20 @@
   "bugs": {
     "url": "https://github.com/kud/git-cherry-pick-interactive-cli/issues"
   },
-  "homepage": "https://github.com/kud/git-cherry-pick-interactive-cli#readme"
+  "homepage": "https://github.com/kud/git-cherry-pick-interactive-cli#readme",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "8.5.2",
+    "chalk": "5.6.2",
+    "simple-git": "3.36.0"
+  },
+  "devDependencies": {
+    "@types/node": "26.1.1",
+    "tsup": "8.5.1",
+    "tsx": "4.23.1",
+    "typescript": "5.9.3",
+    "vitest": "4.1.10"
+  }
 }
