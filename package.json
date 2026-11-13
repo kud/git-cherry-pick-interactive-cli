@@ -34,7 +34,7 @@
   "bugs": {
     "url": "https://github.com/kud/git-cherry-pick-interactive-cli/issues"
   },
-  "homepage": "https://github.com/kud/git-cherry-pick-interactive-cli#readme",
+  "homepage": "https://kud.io/projects/git-cherry-pick-interactive-cli",
   "publishConfig": {
     "access": "public"
   },
