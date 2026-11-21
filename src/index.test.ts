@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { commitsFromBranch } from "./index.js"
+import { commitsFromBranch, handleFatal } from "./index.js"
 
 const { mockGit } = vi.hoisted(() => ({
   mockGit: { raw: vi.fn(), revparse: vi.fn(), show: vi.fn() },
@@ -45,5 +45,41 @@ describe("commitsFromBranch", () => {
     mockGit.raw.mockResolvedValueOnce("")
 
     expect(await commitsFromBranch("feature")).toEqual([])
+  })
+})
+
+describe("handleFatal", () => {
+  const exitWith = () =>
+    vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
+      throw new Error(`exit ${code}`)
+    }) as never)
+
+  it("exits quietly with 130 when the prompt is cancelled", () => {
+    const exit = exitWith()
+    const errorLog = vi.spyOn(console, "error").mockImplementation(() => {})
+    const cancel = Object.assign(new Error("User force closed the prompt"), {
+      name: "ExitPromptError",
+    })
+
+    expect(() => handleFatal(cancel)).toThrow("exit 130")
+    expect(errorLog).not.toHaveBeenCalled()
+
+    exit.mockRestore()
+    errorLog.mockRestore()
+  })
+
+  it("prints the error and exits with 1 otherwise", () => {
+    const exit = exitWith()
+    const errorLog = vi.spyOn(console, "error").mockImplementation(() => {})
+
+    expect(() => handleFatal(new Error("bad revision 'nope'"))).toThrow(
+      "exit 1",
+    )
+    expect(errorLog).toHaveBeenCalledWith(
+      expect.stringContaining("❌ Error: bad revision 'nope'"),
+    )
+
+    exit.mockRestore()
+    errorLog.mockRestore()
   })
 })

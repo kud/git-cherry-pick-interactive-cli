@@ -65,8 +65,15 @@ const main = async (): Promise<void> => {
   await cherryPick(selected)
 }
 
-main().catch((error: unknown) => {
+// Ctrl+C in the picker rejects with the prompt library's ExitPromptError: treat
+// it as a cancel (quiet, exit 130 like SIGINT), everything else as a failure.
+export const handleFatal = (error: unknown): never => {
+  if (error instanceof Error && error.name === "ExitPromptError") {
+    process.exit(130)
+  }
   const message = error instanceof Error ? error.message : String(error)
   console.error(chalk.red(`❌ Error: ${message}`))
   process.exit(1)
-})
+}
+
+main().catch(handleFatal)
