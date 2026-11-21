@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { commitsFromBranch, handleFatal } from "./index.js"
+import { cherryPick, commitsFromBranch, handleFatal } from "./index.js"
 
 const { mockGit } = vi.hoisted(() => ({
   mockGit: { raw: vi.fn(), revparse: vi.fn(), show: vi.fn() },
@@ -9,6 +9,7 @@ vi.mock("simple-git", () => ({ simpleGit: () => mockGit }))
 beforeEach(() => {
   mockGit.raw.mockReset()
   mockGit.revparse.mockReset()
+  mockGit.show.mockReset()
 })
 
 describe("commitsFromBranch", () => {
@@ -45,6 +46,31 @@ describe("commitsFromBranch", () => {
     mockGit.raw.mockResolvedValueOnce("")
 
     expect(await commitsFromBranch("feature")).toEqual([])
+  })
+})
+
+describe("cherryPick", () => {
+  it("cherry-picks in order and lists the known subjects without git show", async () => {
+    mockGit.raw.mockResolvedValueOnce("")
+    const log = vi.spyOn(console, "log").mockImplementation(() => {})
+
+    await cherryPick([
+      { hash: "7654321", message: "Commit 2" },
+      { hash: "1234567", message: "Commit 1" },
+    ])
+
+    expect(mockGit.raw).toHaveBeenCalledTimes(1)
+    expect(mockGit.raw).toHaveBeenCalledWith([
+      "cherry-pick",
+      "7654321",
+      "1234567",
+    ])
+    expect(mockGit.show).not.toHaveBeenCalled()
+    const lines = log.mock.calls.map(([line]) => String(line))
+    expect(lines.at(-2)).toMatch(/\(7654321\).* Commit 2$/)
+    expect(lines.at(-1)).toMatch(/\(1234567\).* Commit 1$/)
+
+    log.mockRestore()
   })
 })
 
