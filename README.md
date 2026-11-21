@@ -22,7 +22,7 @@
 - **Interactive UI** — easily view and select commits with an intuitive interface
 - **Only what's missing** — lists the commits on the branch that aren't already on yours, oldest first, so they replay the right way round
 - **Clear output** — each cherry-picked commit is displayed with its hash and message, providing clarity and transparency
-- **Error handling** — clear error messages and instructions for better usability
+- **Plain errors** — if git fails, its message is printed after `❌ Error:` and the command exits with `1`
 
 ## Install
 
@@ -43,6 +43,18 @@ Replace `<branch-name>` with the name of the branch you want to cherry-pick comm
 After executing the command, you will be presented with a list of commits from the specified branch. Select the commits you'd like to cherry-pick using the arrow keys and spacebar. Once your selections are made, press the Enter key to proceed with the cherry-picking process.
 
 [![asciicast](https://asciinema.org/a/lSFWbYVyDRzQLFillzlAX6uX1.svg)](https://asciinema.org/a/lSFWbYVyDRzQLFillzlAX6uX1)
+
+### Conflicts
+
+The selected commits go to a single `git cherry-pick`. If one of them conflicts, git stops there and the CLI exits with the error, without aborting anything: the repository is left mid cherry-pick, with the earlier commits already applied. Finish it with ordinary git:
+
+```sh
+git status                  # see the conflicted files
+git add <files>             # once they are fixed
+git cherry-pick --continue
+```
+
+or drop the whole run with `git cherry-pick --abort`.
 
 ## Dependencies
 
