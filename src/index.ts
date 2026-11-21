@@ -25,13 +25,14 @@ export const commitsFromBranch = async (branch: string): Promise<Commit[]> => {
     })
 }
 
-const cherryPick = async (hashes: string[]): Promise<void> => {
-  await git.raw(["cherry-pick", ...hashes])
+// The subjects come from the log query that built the picker, so the summary
+// needs no extra `git show` per commit.
+export const cherryPick = async (commits: Commit[]): Promise<void> => {
+  await git.raw(["cherry-pick", ...commits.map((commit) => commit.hash)])
   console.log(chalk.green("✅ Cherry-pick successful!"))
   console.log(chalk.blue("Cherry-picked commits:\n"))
-  for (const hash of hashes) {
-    const subject = (await git.show(["--format=%s", "-s", hash])).trim()
-    console.log(`- ${chalk.dim(`(${hash.slice(0, 7)})`)} ${subject}`)
+  for (const { hash, message } of commits) {
+    console.log(`- ${chalk.dim(`(${hash.slice(0, 7)})`)} ${message}`)
   }
 }
 
@@ -55,7 +56,7 @@ const main = async (): Promise<void> => {
     message: "Select commits to cherry-pick:",
     choices: commits.map((commit) => ({
       name: `${chalk.dim(`(${commit.hash.slice(0, 7)})`)} ${commit.message}`,
-      value: commit.hash,
+      value: commit,
     })),
   })
 

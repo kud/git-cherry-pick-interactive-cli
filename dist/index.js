@@ -15,13 +15,12 @@ var commitsFromBranch = async (branch) => {
     return { hash, message: rest.join(" ") };
   });
 };
-var cherryPick = async (hashes) => {
-  await git.raw(["cherry-pick", ...hashes]);
+var cherryPick = async (commits) => {
+  await git.raw(["cherry-pick", ...commits.map((commit) => commit.hash)]);
   console.log(chalk.green("\u2705 Cherry-pick successful!"));
   console.log(chalk.blue("Cherry-picked commits:\n"));
-  for (const hash of hashes) {
-    const subject = (await git.show(["--format=%s", "-s", hash])).trim();
-    console.log(`- ${chalk.dim(`(${hash.slice(0, 7)})`)} ${subject}`);
+  for (const { hash, message } of commits) {
+    console.log(`- ${chalk.dim(`(${hash.slice(0, 7)})`)} ${message}`);
   }
 };
 var main = async () => {
@@ -42,7 +41,7 @@ var main = async () => {
     message: "Select commits to cherry-pick:",
     choices: commits.map((commit) => ({
       name: `${chalk.dim(`(${commit.hash.slice(0, 7)})`)} ${commit.message}`,
-      value: commit.hash
+      value: commit
     }))
   });
   if (!selected.length) {
@@ -70,6 +69,7 @@ var isEntryPoint = () => {
 };
 if (isEntryPoint()) main().catch(handleFatal);
 export {
+  cherryPick,
   commitsFromBranch,
   handleFatal
 };
