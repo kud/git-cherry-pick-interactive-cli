@@ -1,6 +1,6 @@
 {
   "name": "@kud/git-cherry-pick-interactive-cli",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Interactively cherry-pick commits from another branch.",
   "type": "module",
   "bin": {
