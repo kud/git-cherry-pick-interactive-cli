@@ -1,5 +1,7 @@
 import { checkbox } from "@inquirer/prompts"
 import chalk from "chalk"
+import { realpathSync } from "node:fs"
+import { fileURLToPath } from "node:url"
 import { simpleGit } from "simple-git"
 
 const git = simpleGit()
@@ -76,4 +78,16 @@ export const handleFatal = (error: unknown): never => {
   process.exit(1)
 }
 
-main().catch(handleFatal)
+// Run only when executed as the CLI (the npm bin is a symlink, hence realpath),
+// not when imported, e.g. by the tests.
+const isEntryPoint = (): boolean => {
+  const entry = process.argv[1]
+  if (!entry) return false
+  try {
+    return realpathSync(entry) === realpathSync(fileURLToPath(import.meta.url))
+  } catch {
+    return false
+  }
+}
+
+if (isEntryPoint()) main().catch(handleFatal)
