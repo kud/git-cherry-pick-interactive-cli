@@ -3,6 +3,8 @@
 // src/index.ts
 import { checkbox } from "@inquirer/prompts";
 import chalk from "chalk";
+import { realpathSync } from "fs";
+import { fileURLToPath } from "url";
 import { simpleGit } from "simple-git";
 var git = simpleGit();
 var commitsFromBranch = async (branch) => {
@@ -49,11 +51,25 @@ var main = async () => {
   }
   await cherryPick(selected);
 };
-main().catch((error) => {
+var handleFatal = (error) => {
+  if (error instanceof Error && error.name === "ExitPromptError") {
+    process.exit(130);
+  }
   const message = error instanceof Error ? error.message : String(error);
   console.error(chalk.red(`\u274C Error: ${message}`));
   process.exit(1);
-});
+};
+var isEntryPoint = () => {
+  const entry = process.argv[1];
+  if (!entry) return false;
+  try {
+    return realpathSync(entry) === realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return false;
+  }
+};
+if (isEntryPoint()) main().catch(handleFatal);
 export {
-  commitsFromBranch
+  commitsFromBranch,
+  handleFatal
 };
