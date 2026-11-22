@@ -2,8 +2,6 @@
 
 <img src="assets/icon.svg" width="128" alt="Git Cherry Pick Interactive icon" />
 
-🍒
-
 # Git Cherry Pick Interactive
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
